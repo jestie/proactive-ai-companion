@@ -1,0 +1,35 @@
+{
+    "ai": {
+      "provider": "openai",
+      "openai_settings": {
+        "api_key": "PASTE_YOUR_OPENAI_API_KEY_HERE"
+      },
+      "ollama_settings": {
+        "host": "http://localhost:11434",
+        "model": "llama3"
+      },
+      "elevenlabs_api_key": "PASTE_YOUR_ELEVENLABS_API_KEY_HERE"
+    },
+    "proactivity": {
+      "enabled": true,
+      "frequency_seconds": 60,
+      "inactivity_timeout_seconds": 180
+    },
+    "voice": {
+      "enabled": true,
+      "voice_id": "21m00Tcm4TlvDq8ikWAM"
+    },
+    "ui": {
+      "theme": "dark",
+      "always_on_top": true
+    },
+    "ai_personality": {
+      "system_prompt": "You are a helpful and concise desktop assistant."
+    },
+    "context_awareness": {
+      "enabled": true
+    },
+    "audio_input": {
+      "mic_device_index": null
+    }
+  }

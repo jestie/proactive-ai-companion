@@ -1,0 +1,7 @@
+PyQt5
+requests
+openai
+elevenlabs
+PyGetWindow
+SpeechRecognition
+PyAudio
