@@ -17,7 +17,7 @@
     },
     "voice": {
       "enabled": true,
-      "voice_id": "21m00Tcm4TlvDq8ikWAM"
+      "voice_id": "PASTE_YOUR_ELEVENLABS_VOICE_ID_HERE"
     },
     "ui": {
       "theme": "dark",
