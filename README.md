@@ -1,77 +1,79 @@
 # Proactive AI Companion
 
-A prototype for a cross-platform desktop application that provides a floating, proactive AI companion. This ambient assistant lives on your desktop, initiating conversations, providing context-aware suggestions, and responding to both text and voice commands.
+A desktop AI companion with proactive engagement, context awareness, and multi-modal voice interaction, built in Python and PyQt5. This application provides a floating, ambient UI that can initiate conversations, respond to text and voice, and provide context-aware assistance based on the user's active window.
 
-![UI Mockup](httpsa://i.imgur.com/k6lP09r.png)
+ <!-- Or a real screenshot of your app! -->
 
 ## ✨ Features
 
-*   **Proactive Engagement:** The AI doesn't just wait; it initiates conversations based on timers and context.
-*   **Context Awareness:** Knows which application you're using and can tailor its suggestions accordingly.
-*   **Multi-Modal Interaction:**
-    *   **Voice Output:** High-quality text-to-speech powered by ElevenLabs.
-    *   **Voice Input:** Speech-to-text allows you to talk to your companion.
-    *   **Text Chat:** A classic chat interface for typed commands.
-*   **Flexible AI Backend:**
-    *   Supports the OpenAI API.
-    *   Supports local, private LLMs via an Ollama instance.
-*   **Highly Configurable:** A full settings panel to manage AI providers, API keys, voice, microphone, and AI personality via a custom system prompt.
-*   **Intuitive UI:** A stylish, draggable "doughnut" overlay that communicates its status (On, Off, TTS Error, Listening) with colors and icons.
-
-## 🛠️ Technical Stack
-
-*   **Frontend UI:** Python with PyQt5
-*   **AI Services:** OpenAI API, Ollama
-*   **Text-to-Speech:** ElevenLabs API
-*   **Speech-to-Text:** Google Speech Recognition API (via `SpeechRecognition` library)
-*   **System Interaction:** `PyGetWindow` for context awareness
+- **Proactive Engagement:** The AI periodically starts conversations or offers relevant tips.
+- **Multi-Modal Interaction:** Communicate via text or voice (click-to-talk and "always-on" modes).
+- **Hybrid Voice System:** Supports high-quality cloud TTS (ElevenLabs) and a reliable, offline local system voice.
+- **Configurable AI Brain:** Switch between cloud (OpenAI) and local (Ollama) AI providers.
+- **Context Awareness:** AI suggestions are tailored to the application you're currently using.
+- **Conversational Memory:** Remembers the last few turns of a conversation for natural follow-up.
+- **Robust UI:** A draggable, animated doughnut overlay that provides clear visual feedback for its status (On, Off, TTS Error, Listening).
+- **Comprehensive Settings Panel:** A full GUI to manage API keys, AI providers, voice preferences, proactive behavior, and microphone selection.
+- **Resilient and Maintainable:** Gracefully handles API errors and provides detailed technical and conversational logs.
 
 ## 🚀 Getting Started
 
-Follow these instructions to get the Proactive AI Companion running on your local machine.
+### Prerequisites
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
-cd YOUR_REPOSITORY_NAME
+- Python 3.10+
+- `git`
+- An active internet connection (for API access and dependency installation)
+- A working microphone
 
+### Installation & Setup
 
-###  2. Create and Activate a Virtual Environment
-This keeps your project's dependencies isolated.
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/jestie/proactive-ai-companion.git
+    cd proactive-ai-companion
+    ```
 
-On Windows:
-python -m venv venv
-.\venv\Scripts\activate
+2.  **Create and activate a Python virtual environment:**
+    ```bash
+    # On Windows
+    python -m venv venv
+    .\venv\Scripts\activate
 
-On macOS / Linux:
-python3 -m venv venv
-source venv/bin/activate
+    # On macOS/Linux
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
 
+3.  **Install the required dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### 3. Install Dependencies
-pip install -r requirements.txt
+4.  **(Crucial) Configure the Application:**
+    - The first time you run the app, it will automatically create a `config.json` file for you.
+    - Open the newly created `config.json` file.
+    - Add your secret API keys for **OpenAI** and **ElevenLabs**.
+    - The application will not function correctly without these keys.
 
+5.  **Run the application:**
+    ```bash
+    python main.py
+    ```
+    On first launch, right-click the overlay, go to **Settings**, and configure your AI provider, microphone, and voice preferences.
 
-### 4. Configure the Application
-This is the most important step. You must provide your own API keys.
-Copy the template file to create your personal configuration file. This file is safely ignored by Git and will not be uploaded.
-Generated bash
-# On Windows
-copy config.template.json config.json
+## ⚙️ Configuration
 
-# On macOS / Linux
-cp config.template.json config.json
+The `config.json` file allows for detailed customization:
 
-Now, open the new config.json file and paste in your secret API keys from OpenAI and ElevenLabs.
-Customize other settings like the voice_id or default system_prompt as desired.
+- **`ai`**: Choose between `openai` and `ollama` providers and enter the relevant settings.
+- **`proactivity`**: Enable/disable proactive messages and set their frequency.
+- **`voice`**: Choose between `elevenlabs` and `local` TTS, and configure voice IDs.
+- **`ai_personality`**: Write a custom system prompt to define your companion's character.
+- **`context_awareness`**: Toggle whether the AI knows about your active application.
+- **`audio_input`**: Select your microphone and toggle "Always-On" listening mode.
 
+## 📝 Logging
 
-### 5. Install FFmpeg (for Voice Output)
-The ElevenLabs library requires FFmpeg to play audio.
-Windows: Download the "essentials" build from gyan.dev/ffmpeg/builds/ and add its bin folder to your system's PATH.
-macOS: brew install ffmpeg
-Linux: sudo apt update && sudo apt install ffmpeg
-
-
-### 6. Run the Application
-python main.py
+The application generates two log files in the `logs/` directory for debugging and review:
+- `technical.log`: Contains detailed information about application startup, API calls, and errors.
+- `conversation.log`: Provides a clean, timestamped transcript of all conversations with the AI.

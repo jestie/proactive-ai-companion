@@ -4,51 +4,95 @@
 # ----- PASTE THIS ENTIRE BLOCK INTO YOUR FILE -----
 #
 
+import pyttsx3
 from elevenlabs.client import ElevenLabs
 from elevenlabs import play
+import logging
+import threading
 
 class TTSProvider:
-    def __init__(self, api_key, voice_id):
-        self.api_key = api_key
-        self.voice_id = voice_id
+    @staticmethod
+    def list_local_voices():
+        """Returns a list of available local TTS voices."""
+        try:
+            engine = pyttsx3.init()
+            voices = engine.getProperty('voices')
+            engine.stop() # Necessary to release the engine
+            return voices
+        except Exception as e:
+            logging.getLogger("technical").error(f"Could not list local voices: {e}")
+            return []
+
+    def __init__(self, tts_config, elevenlabs_api_key):
+        self.logger = logging.getLogger("technical")
+        self.config = tts_config
+        self.provider = self.config.get('tts_provider', 'elevenlabs')
+        self.elevenlabs_client = None
+        self.local_engine = None
+
+        if self.provider == 'elevenlabs':
+            if not elevenlabs_api_key or "MYAPIKEY" in elevenlabs_api_key:
+                self.logger.warning("ElevenLabs API key is missing. TTS will not work.")
+            else:
+                try:
+                    self.elevenlabs_client = ElevenLabs(api_key=elevenlabs_api_key)
+                    self.logger.info("TTS Provider initialized for ElevenLabs.")
+                except Exception as e:
+                    self.logger.error(f"Failed to initialize ElevenLabs client: {e}")
         
-        if not self.api_key or self.api_key == "YOUR_ELEVENLABS_API_KEY":
-            print("Warning: ElevenLabs API key is missing. TTS provider will not work.")
-            self.client = None
-        else:
+        elif self.provider == 'local':
             try:
-                self.client = ElevenLabs(api_key=self.api_key)
-                print("TTS Provider initialized with real ElevenLabs client.")
+                self.local_engine = pyttsx3.init()
+                local_voice_id = self.config.get('local_tts_settings', {}).get('voice_id')
+                if local_voice_id:
+                    self.local_engine.setProperty('voice', local_voice_id)
+                self.logger.info("TTS Provider initialized for Local System Voice.")
             except Exception as e:
-                print(f"Failed to initialize ElevenLabs client: {e}")
-                self.client = None
+                self.logger.error(f"Failed to initialize local TTS engine: {e}")
+                self.local_engine = None
 
     def speak(self, text):
-        """
-        Speaks text using the ElevenLabs TTS engine.
-        Returns True on success, False on failure.
-        """
-        if not self.client:
-            print("[TTS-SIMULATION] TTS is disabled. Please check your API key or initialization.")
-            return True # Return True to not trigger error state if intentionally disabled
+        """Speaks text using the configured TTS engine."""
+        if self.provider == 'elevenlabs' and self.elevenlabs_client:
+            return self._speak_elevenlabs(text)
+        elif self.provider == 'local' and self.local_engine:
+            return self._speak_local(text)
+        else:
+            self.logger.warning(f"TTS provider '{self.provider}' not available or configured correctly. Skipping speech.")
+            return True # Return true to not trigger a UI error
 
+    def _speak_elevenlabs(self, text):
         sanitized_text = text.replace('"', '')
-        print(f"[TTS] Requesting audio for: '{sanitized_text}'")
-
+        self.logger.info(f"[TTS-ElevenLabs] Requesting audio for: '{sanitized_text}'")
         try:
-            audio = self.client.text_to_speech.stream(
+            voice_id = self.config.get('elevenlabs_settings', {}).get('voice_id')
+            audio = self.elevenlabs_client.text_to_speech.stream(
                 text=sanitized_text,
-                voice_id=self.voice_id,
+                voice_id=voice_id,
                 model_id="eleven_multilingual_v2" 
             )
-            
             if audio:
                 play(audio)
-                return True # --- Signal success ---
+                return True
             else:
-                print("TTS Error: Audio generation returned nothing.")
-                return False # --- Signal failure ---
-
+                self.logger.error("ElevenLabs TTS Error: Audio generation returned nothing.")
+                return False
         except Exception as e:
-            print(f"Error calling ElevenLabs API: {e}")
-            return False # --- Signal failure ---
+            self.logger.error(f"Error calling ElevenLabs API: {e}")
+            return False
+
+    def _speak_local(self, text):
+        self.logger.info(f"[TTS-Local] Speaking: '{text}'")
+        try:
+            # pyttsx3's runAndWait is blocking, so we run it in a thread
+            # to avoid freezing the UI.
+            def run_tts():
+                self.local_engine.say(text)
+                self.local_engine.runAndWait()
+
+            tts_thread = threading.Thread(target=run_tts)
+            tts_thread.start()
+            return True
+        except Exception as e:
+            self.logger.error(f"Local TTS engine failed: {e}")
+            return False

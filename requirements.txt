@@ -5,3 +5,4 @@ elevenlabs
 PyGetWindow
 SpeechRecognition
 PyAudio
+pyttsx3

@@ -21,3 +21,8 @@ Thumbs.db
 # --- SENSITIVE CONFIGURATION ---
 # NEVER commit the file with your real API keys
 config.json
+
+# --- APPLICATION-GENERATED FILES ---
+# Ignore log files and corrupted config backups
+logs/
+*.corrupted.bak
